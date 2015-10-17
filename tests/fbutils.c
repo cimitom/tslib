@@ -21,9 +21,8 @@
 #include <sys/mman.h>
 #include <sys/time.h>
 
-#include <linux/vt.h>
-#include <linux/kd.h>
-#include <linux/fb.h>
+#include <sys/consio.h>
+#include <sys/fbio.h>
 
 #include "font.h"
 #include "fbutils.h"
@@ -34,80 +33,26 @@ union multiptr {
 	unsigned long *p32;
 };
 
-static int con_fd, fb_fd, last_vt = -1;
-static struct fb_fix_screeninfo fix;
-static struct fb_var_screeninfo var;
+static int con_fd, last_vt = -1, fbsize;
 static unsigned char *fbuffer;
 static unsigned char **line_addr;
 static int fb_fd=0;
 static int bytes_per_pixel;
 static unsigned colormap [256];
-__u32 xres, yres;
+uint32_t xres, yres;
 
 static char *defaultfbdevice = "/dev/fb0";
-static char *defaultconsoledevice = "/dev/tty";
 static char *fbdevice = NULL;
-static char *consoledevice = NULL;
 
 int open_framebuffer(void)
 {
-	struct vt_stat vts;
-	char vtname[128];
-	int fd, nr;
-	unsigned y, addr;
+	int y;
+	unsigned addr;
+	struct fbtype fb;
+	int line_length;
 
 	if ((fbdevice = getenv ("TSLIB_FBDEVICE")) == NULL)
 		fbdevice = defaultfbdevice;
-
-	if ((consoledevice = getenv ("TSLIB_CONSOLEDEVICE")) == NULL)
-		consoledevice = defaultconsoledevice;
-
-	if (strcmp (consoledevice, "none") != 0) {
-		sprintf (vtname,"%s%d", consoledevice, 1);
-        	fd = open (vtname, O_WRONLY);
-        	if (fd < 0) {
-        	        perror("open consoledevice");
-        	        return -1;
-        	}
-
-		if (ioctl(fd, VT_OPENQRY, &nr) < 0) {
-        	        perror("ioctl VT_OPENQRY");
-        	        return -1;
-        	}
-        	close(fd);
-
-        	sprintf(vtname, "%s%d", consoledevice, nr);
-
-        	con_fd = open(vtname, O_RDWR | O_NDELAY);
-        	if (con_fd < 0) {
-        	        perror("open tty");
-        	        return -1;
-        	}
-
-        	if (ioctl(con_fd, VT_GETSTATE, &vts) == 0)
-        	        last_vt = vts.v_active;
-
-        	if (ioctl(con_fd, VT_ACTIVATE, nr) < 0) {
-        	        perror("VT_ACTIVATE");
-        	        close(con_fd);
-        	        return -1;
-        	}
-
-#ifndef TSLIB_NO_VT_WAITACTIVE
-        	if (ioctl(con_fd, VT_WAITACTIVE, nr) < 0) {
-        	        perror("VT_WAITACTIVE");
-        	        close(con_fd);
-        	        return -1;
-        	}
-#endif
-
-        	if (ioctl(con_fd, KDSETMODE, KD_GRAPHICS) < 0) {
-        	        perror("KDSETMODE");
-        	        close(con_fd);
-        	        return -1;
-        	}
-
-	}
 
 	fb_fd = open(fbdevice, O_RDWR);
 	if (fb_fd == -1) {
@@ -115,32 +60,35 @@ int open_framebuffer(void)
 		return -1;
 	}
 
-	if (ioctl(fb_fd, FBIOGET_FSCREENINFO, &fix) < 0) {
-		perror("ioctl FBIOGET_FSCREENINFO");
-		close(fb_fd);
+
+	if (ioctl(fb_fd, FBIOGTYPE, &fb) != 0) {
+		perror("ioctl(FBIOGTYPE)");
 		return -1;
 	}
 
-	if (ioctl(fb_fd, FBIOGET_VSCREENINFO, &var) < 0) {
-		perror("ioctl FBIOGET_VSCREENINFO");
-		close(fb_fd);
+	if (ioctl(fb_fd, FBIO_GETLINEWIDTH, &line_length) != 0) {
+		perror("ioctl(FBIO_GETLINEWIDTH)");
 		return -1;
 	}
-	xres = var.xres;
-	yres = var.yres;
 
-	fbuffer = mmap(NULL, fix.smem_len, PROT_READ | PROT_WRITE, MAP_FILE | MAP_SHARED, fb_fd, 0);
+	xres = fb.fb_width;
+	yres = fb.fb_height;
+
+	int pagemask = getpagesize() - 1;
+	fbsize = ((int) line_length*yres + pagemask) & ~pagemask;
+
+	fbuffer = (unsigned char *)mmap(0, fbsize, PROT_READ | PROT_WRITE, MAP_SHARED, fb_fd, 0);
 	if (fbuffer == (unsigned char *)-1) {
 		perror("mmap framebuffer");
 		close(fb_fd);
 		return -1;
 	}
-	memset(fbuffer,0,fix.smem_len);
+	memset(fbuffer,0, fbsize);
 
-	bytes_per_pixel = (var.bits_per_pixel + 7) / 8;
-	line_addr = malloc (sizeof (__u32) * var.yres_virtual);
+	bytes_per_pixel = (fb.fb_depth + 7) / 8;
+	line_addr = malloc (sizeof (uint32_t) * fb.fb_height);
 	addr = 0;
-	for (y = 0; y < var.yres_virtual; y++, addr += fix.line_length)
+	for (y = 0; y < fb.fb_height; y++, addr += line_length)
 		line_addr [y] = fbuffer + addr;
 
 	return 0;
@@ -148,27 +96,16 @@ int open_framebuffer(void)
 
 void close_framebuffer(void)
 {
-	munmap(fbuffer, fix.smem_len);
+	munmap(fbuffer, fbsize);
 	close(fb_fd);
-
-
-	if(strcmp(consoledevice,"none")!=0) {
-	
-        	if (ioctl(con_fd, KDSETMODE, KD_TEXT) < 0)
-        	        perror("KDSETMODE");
-
-        	if (last_vt >= 0)
-        	        if (ioctl(con_fd, VT_ACTIVATE, last_vt))
-        	                perror("VT_ACTIVATE");
-
-        	close(con_fd);
-	}
 
         free (line_addr);
 }
 
 void put_cross(int x, int y, unsigned colidx)
 {
+	fprintf(stderr, "%d %d, %d\n", x, y, colidx);
+
 	line (x - 10, y, x - 2, y, colidx);
 	line (x + 2, y, x + 10, y, colidx);
 	line (x, y - 10, x, y - 2, colidx);
@@ -220,8 +157,7 @@ void put_string_center(int x, int y, char *s, unsigned colidx)
 void setcolor(unsigned colidx, unsigned value)
 {
 	unsigned res;
-	unsigned short red, green, blue;
-	struct fb_cmap cmap;
+	unsigned char red, green, blue;
 
 #ifdef DEBUG
 	if (colidx > 255) {
@@ -231,32 +167,22 @@ void setcolor(unsigned colidx, unsigned value)
 	}
 #endif
 
-	switch (bytes_per_pixel) {
-	default:
-	case 1:
-		res = colidx;
-		red = (value >> 8) & 0xff00;
-		green = value & 0xff00;
-		blue = (value << 8) & 0xff00;
-		cmap.start = colidx;
-		cmap.len = 1;
-		cmap.red = &red;
-		cmap.green = &green;
-		cmap.blue = &blue;
-		cmap.transp = NULL;
+	red = (value >> 16) & 0xff;
+	green = (value >> 8) & 0xff;
+	blue = value & 0xff;
 
-        	if (ioctl (fb_fd, FBIOPUTCMAP, &cmap) < 0)
-        	        perror("ioctl FBIOPUTCMAP");
+	switch (bytes_per_pixel) {
+	case 1:
+		res = value;
 		break;
 	case 2:
+		res = ((red >> 3) << 11) | ((green >> 2) << 5) | (blue >> 3);
+		break;
 	case 3:
 	case 4:
-		red = (value >> 16) & 0xff;
-		green = (value >> 8) & 0xff;
-		blue = value & 0xff;
-		res = ((red >> (8 - var.red.length)) << var.red.offset) |
-                      ((green >> (8 - var.green.length)) << var.green.offset) |
-                      ((blue >> (8 - var.blue.length)) << var.blue.offset);
+	default:
+		res = value;
+		
 	}
         colormap [colidx] = res;
 }
@@ -302,8 +228,8 @@ void pixel (int x, int y, unsigned colidx)
 	unsigned xormode;
 	union multiptr loc;
 
-	if ((x < 0) || ((__u32)x >= var.xres_virtual) ||
-	    (y < 0) || ((__u32)y >= var.yres_virtual))
+	if ((x < 0) || ((uint32_t)x >= xres) ||
+	    (y < 0) || ((uint32_t)y >= yres))
 		return;
 
 	xormode = colidx & XORMODE;
@@ -374,10 +300,10 @@ void fillrect (int x1, int y1, int x2, int y2, unsigned colidx)
 	/* Clipping and sanity checking */
 	if (x1 > x2) { tmp = x1; x1 = x2; x2 = tmp; }
 	if (y1 > y2) { tmp = y1; y1 = y2; y2 = tmp; }
-	if (x1 < 0) x1 = 0; if ((__u32)x1 >= xres) x1 = xres - 1;
-	if (x2 < 0) x2 = 0; if ((__u32)x2 >= xres) x2 = xres - 1;
-	if (y1 < 0) y1 = 0; if ((__u32)y1 >= yres) y1 = yres - 1;
-	if (y2 < 0) y2 = 0; if ((__u32)y2 >= yres) y2 = yres - 1;
+	if (x1 < 0) x1 = 0; if ((uint32_t)x1 >= xres) x1 = xres - 1;
+	if (x2 < 0) x2 = 0; if ((uint32_t)x2 >= xres) x2 = xres - 1;
+	if (y1 < 0) y1 = 0; if ((uint32_t)y1 >= yres) y1 = yres - 1;
+	if (y2 < 0) y2 = 0; if ((uint32_t)y2 >= yres) y2 = yres - 1;
 
 	if ((x1 > x2) || (y1 > y2))
 		return;
