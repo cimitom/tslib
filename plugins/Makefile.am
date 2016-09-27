@@ -96,12 +96,6 @@ else
 INPUT_MODULE =
 endif
 
-if ENABLE_BSD_MODULE
-BSD_MODULE = bsd.la
-else
-BSD_MODULE =
-endif
-
 if ENABLE_GALAX_MODULE
 GALAX_MODULE = galax.la
 else
@@ -142,7 +136,6 @@ pluginexec_LTLIBRARIES = \
 	$(DMC_MODULE) \
 	$(H2200_LINEAR_MODULE) \
 	$(INPUT_MODULE) \
-	$(BSD_MODULE) \
 	$(GALAX_MODULE) \
 	$(TOUCHKIT_MODULE) \
 	$(CY8MRLN_PALMPRE_MODULE)
@@ -191,10 +184,6 @@ dmc_la_LDFLAGS		= -module $(LTVSN)
 input_la_SOURCES	= input-raw.c
 input_la_LDFLAGS	= -module $(LTVSN)
 input_la_LIBADD		= $(top_builddir)/src/libts.la
-
-bsd_la_SOURCES		= bsd-raw.c
-bsd_la_LDFLAGS		= -module $(LTVSN)
-bsd_la_LIBADD		= $(top_builddir)/src/libts.la
 
 galax_la_SOURCES = galax-raw.c
 galax_la_LDFLAGS = -module $(LTVSN)

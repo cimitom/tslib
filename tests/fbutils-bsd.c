@@ -33,7 +33,7 @@ union multiptr {
 	unsigned long *p32;
 };
 
-static int con_fd, last_vt = -1, fbsize;
+static int fbsize;
 static unsigned char *fbuffer;
 static unsigned char **line_addr;
 static int fb_fd=0;
