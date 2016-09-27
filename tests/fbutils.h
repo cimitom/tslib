@@ -13,7 +13,12 @@
 #ifndef _FBUTILS_H
 #define _FBUTILS_H
 
+#ifdef __FreeBSD__
 #include <sys/stdint.h>
+typedef uint32_t __u32;
+#else
+#include <asm/types.h>
+#endif
 
 /* This constant, being ORed with the color index tells the library
  * to draw in exclusive-or mode (that is, drawing the same second time
@@ -21,7 +26,7 @@
  */
 #define XORMODE	0x80000000
 
-extern uint32_t xres, yres;
+extern __u32 xres, yres;
 
 int open_framebuffer(void);
 void close_framebuffer(void);
