@@ -112,7 +112,6 @@ host_triplet = @host@
 @ENABLE_STATIC_ARCTIC2_MODULE_TRUE@am__append_11 = $(top_srcdir)/plugins/arctic2-raw.c
 @ENABLE_STATIC_TATUNG_MODULE_TRUE@am__append_12 = $(top_srcdir)/plugins/tatung-raw.c
 @ENABLE_STATIC_INPUT_MODULE_TRUE@am__append_13 = $(top_srcdir)/plugins/input-raw.c
-@ENABLE_STATIC_BSD_MODULE_TRUE@am__append_14 = $(top_srcdir)/plugins/bsd-raw.c
 subdir = src
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/internal/libtool.m4 \
@@ -176,8 +175,7 @@ am__libts_la_SOURCES_DIST = ts_attach.c ts_close.c ts_config.c \
 	$(top_srcdir)/plugins/mk712-raw.c \
 	$(top_srcdir)/plugins/arctic2-raw.c \
 	$(top_srcdir)/plugins/tatung-raw.c \
-	$(top_srcdir)/plugins/input-raw.c \
-	$(top_srcdir)/plugins/bsd-raw.c
+	$(top_srcdir)/plugins/input-raw.c
 am__dirstamp = $(am__leading_dot)dirstamp
 @ENABLE_STATIC_LINEAR_MODULE_TRUE@am__objects_1 = $(top_srcdir)/plugins/linear.lo
 @ENABLE_STATIC_DEJITTER_MODULE_TRUE@am__objects_2 = $(top_srcdir)/plugins/dejitter.lo
@@ -192,7 +190,6 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @ENABLE_STATIC_ARCTIC2_MODULE_TRUE@am__objects_11 = $(top_srcdir)/plugins/arctic2-raw.lo
 @ENABLE_STATIC_TATUNG_MODULE_TRUE@am__objects_12 = $(top_srcdir)/plugins/tatung-raw.lo
 @ENABLE_STATIC_INPUT_MODULE_TRUE@am__objects_13 = $(top_srcdir)/plugins/input-raw.lo
-@ENABLE_STATIC_BSD_MODULE_TRUE@am__objects_14 = $(top_srcdir)/plugins/bsd-raw.lo
 am_libts_la_OBJECTS = ts_attach.lo ts_close.lo ts_config.lo \
 	ts_error.lo ts_fd.lo ts_load_module.lo ts_open.lo \
 	ts_parse_vars.lo ts_read.lo ts_read_raw.lo ts_option.lo \
@@ -200,7 +197,7 @@ am_libts_la_OBJECTS = ts_attach.lo ts_close.lo ts_config.lo \
 	$(am__objects_4) $(am__objects_5) $(am__objects_6) \
 	$(am__objects_7) $(am__objects_8) $(am__objects_9) \
 	$(am__objects_10) $(am__objects_11) $(am__objects_12) \
-	$(am__objects_13) $(am__objects_14)
+	$(am__objects_13)
 libts_la_OBJECTS = $(am_libts_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -411,7 +408,7 @@ libts_la_SOURCES = ts_attach.c ts_close.c ts_config.c ts_error.c \
 	$(am__append_3) $(am__append_4) $(am__append_5) \
 	$(am__append_6) $(am__append_7) $(am__append_8) \
 	$(am__append_9) $(am__append_10) $(am__append_11) \
-	$(am__append_12) $(am__append_13) $(am__append_14)
+	$(am__append_12) $(am__append_13)
 libts_la_LDFLAGS = -version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE) \
 		   -release $(LT_RELEASE) -export-dynamic
 
@@ -528,9 +525,6 @@ $(top_srcdir)/plugins/tatung-raw.lo:  \
 $(top_srcdir)/plugins/input-raw.lo:  \
 	$(top_srcdir)/plugins/$(am__dirstamp) \
 	$(top_srcdir)/plugins/$(DEPDIR)/$(am__dirstamp)
-$(top_srcdir)/plugins/bsd-raw.lo:  \
-	$(top_srcdir)/plugins/$(am__dirstamp) \
-	$(top_srcdir)/plugins/$(DEPDIR)/$(am__dirstamp)
 
 libts.la: $(libts_la_OBJECTS) $(libts_la_DEPENDENCIES) $(EXTRA_libts_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(libts_la_LINK) -rpath $(libdir) $(libts_la_OBJECTS) $(libts_la_LIBADD) $(LIBS)
@@ -544,7 +538,6 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@$(top_srcdir)/plugins/$(DEPDIR)/arctic2-raw.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@$(top_srcdir)/plugins/$(DEPDIR)/bsd-raw.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@$(top_srcdir)/plugins/$(DEPDIR)/collie-raw.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@$(top_srcdir)/plugins/$(DEPDIR)/corgi-raw.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@$(top_srcdir)/plugins/$(DEPDIR)/dejitter.Plo@am__quote@
@@ -833,7 +826,6 @@ uninstall-am: uninstall-includeHEADERS uninstall-libLTLIBRARIES
 
 .PRECIOUS: Makefile
 
-# libts_la_LIBADD  = -ldl
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

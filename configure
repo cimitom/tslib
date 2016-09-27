@@ -636,6 +636,8 @@ ac_header_list=
 ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
+FREEBSD_FALSE
+FREEBSD_TRUE
 LT_AGE
 LT_REVISION
 LT_CURRENT
@@ -645,10 +647,6 @@ TS_CONF
 LIBFLAGS
 DEBUGFLAGS
 PLUGIN_DIR
-ENABLE_STATIC_BSD_MODULE_FALSE
-ENABLE_STATIC_BSD_MODULE_TRUE
-ENABLE_BSD_MODULE_FALSE
-ENABLE_BSD_MODULE_TRUE
 ENABLE_STATIC_GALAX_MODULE_FALSE
 ENABLE_STATIC_GALAX_MODULE_TRUE
 ENABLE_GALAX_MODULE_FALSE
@@ -865,7 +863,6 @@ enable_dmc
 enable_input
 enable_touchkit
 enable_galax
-enable_bsd
 with_plugindir
 enable_debug
 '
@@ -1539,8 +1536,6 @@ Optional Features:
                           /dev/ttySX support) (default=yes)
   --enable-galax          Enable building of HID USB eGalax raw module (Linux
                           /dev/hiddevN support) (default=yes)
-  --enable-bsd            Enable building of generic FreeBSD raw module
-                          (FreeBSD /dev/touchscreenN support) (default=no)
   --enable-debug
 		Enable debug messages from filters (default=no)
 
@@ -13941,45 +13936,6 @@ fi
 
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether bsd module is requested" >&5
-$as_echo_n "checking whether bsd module is requested... " >&6; }
-
-# Check whether --enable-bsd was given.
-if test "${enable_bsd+set}" = set; then :
-  enableval=$enable_bsd; enable_module=$enableval
-else
-  enable_module=no
-fi
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $enable_module" >&5
-$as_echo "$enable_module" >&6; }
-
- if test "x$enable_module" = "xyes"; then
-  ENABLE_BSD_MODULE_TRUE=
-  ENABLE_BSD_MODULE_FALSE='#'
-else
-  ENABLE_BSD_MODULE_TRUE='#'
-  ENABLE_BSD_MODULE_FALSE=
-fi
-
- if test "x$enable_module" = "xstatic"; then
-  ENABLE_STATIC_BSD_MODULE_TRUE=
-  ENABLE_STATIC_BSD_MODULE_FALSE='#'
-else
-  ENABLE_STATIC_BSD_MODULE_TRUE='#'
-  ENABLE_STATIC_BSD_MODULE_FALSE=
-fi
-
-if test "x$enable_module" = "xstatic" ; then
-
-$as_echo "#define TSLIB_STATIC_BSD_MODULE 1" >>confdefs.h
-
-fi
-
-
-
-
-
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking where to place modules" >&5
 $as_echo_n "checking where to place modules... " >&6; }
@@ -14030,6 +13986,32 @@ LT_AGE=0
 
 
 
+
+
+
+
+target_os=""
+case $host_os in
+  linux*)
+        # do nothing
+        target_os="linux"
+        ;;
+   freebsd*)
+        target_os="freebsd"
+        ;;
+    *)
+        #Default Case
+        as_fn_error $? "Your platform is not currently supported: $host_os" "$LINENO" 5
+        ;;
+esac
+
+ if test "$target_os" = "freebsd"; then
+  FREEBSD_TRUE=
+  FREEBSD_FALSE='#'
+else
+  FREEBSD_TRUE='#'
+  FREEBSD_FALSE=
+fi
 
 
 ac_config_files="$ac_config_files Makefile etc/Makefile plugins/Makefile src/Makefile tests/Makefile tslib.pc:tslib.pc.in tslib-$LT_RELEASE.pc:tslib.pc.in"
@@ -14303,12 +14285,8 @@ if test -z "${ENABLE_STATIC_GALAX_MODULE_TRUE}" && test -z "${ENABLE_STATIC_GALA
   as_fn_error $? "conditional \"ENABLE_STATIC_GALAX_MODULE\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
-if test -z "${ENABLE_BSD_MODULE_TRUE}" && test -z "${ENABLE_BSD_MODULE_FALSE}"; then
-  as_fn_error $? "conditional \"ENABLE_BSD_MODULE\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
-if test -z "${ENABLE_STATIC_BSD_MODULE_TRUE}" && test -z "${ENABLE_STATIC_BSD_MODULE_FALSE}"; then
-  as_fn_error $? "conditional \"ENABLE_STATIC_BSD_MODULE\" was never defined.
+if test -z "${FREEBSD_TRUE}" && test -z "${FREEBSD_FALSE}"; then
+  as_fn_error $? "conditional \"FREEBSD\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 

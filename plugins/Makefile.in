@@ -156,13 +156,6 @@ arctic2_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(arctic2_la_LDFLAGS) $(LDFLAGS) -o $@
 @ENABLE_ARCTIC2_MODULE_TRUE@am_arctic2_la_rpath = -rpath \
 @ENABLE_ARCTIC2_MODULE_TRUE@	$(pluginexecdir)
-bsd_la_DEPENDENCIES = $(top_builddir)/src/libts.la
-am_bsd_la_OBJECTS = bsd-raw.lo
-bsd_la_OBJECTS = $(am_bsd_la_OBJECTS)
-bsd_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
-	$(bsd_la_LDFLAGS) $(LDFLAGS) -o $@
-@ENABLE_BSD_MODULE_TRUE@am_bsd_la_rpath = -rpath $(pluginexecdir)
 collie_la_LIBADD =
 am_collie_la_OBJECTS = collie-raw.lo
 collie_la_OBJECTS = $(am_collie_la_OBJECTS)
@@ -321,7 +314,7 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(arctic2_la_SOURCES) $(bsd_la_SOURCES) $(collie_la_SOURCES) \
+SOURCES = $(arctic2_la_SOURCES) $(collie_la_SOURCES) \
 	$(corgi_la_SOURCES) $(cy8mrln_palmpre_la_SOURCES) \
 	$(dejitter_la_SOURCES) $(dmc_la_SOURCES) $(galax_la_SOURCES) \
 	$(h3600_la_SOURCES) $(input_la_SOURCES) $(linear_la_SOURCES) \
@@ -329,11 +322,10 @@ SOURCES = $(arctic2_la_SOURCES) $(bsd_la_SOURCES) $(collie_la_SOURCES) \
 	$(pthres_la_SOURCES) $(tatung_la_SOURCES) \
 	$(touchkit_la_SOURCES) $(ucb1x00_la_SOURCES) \
 	$(variance_la_SOURCES)
-DIST_SOURCES = $(arctic2_la_SOURCES) $(bsd_la_SOURCES) \
-	$(collie_la_SOURCES) $(corgi_la_SOURCES) \
-	$(cy8mrln_palmpre_la_SOURCES) $(dejitter_la_SOURCES) \
-	$(dmc_la_SOURCES) $(galax_la_SOURCES) $(h3600_la_SOURCES) \
-	$(input_la_SOURCES) $(linear_la_SOURCES) \
+DIST_SOURCES = $(arctic2_la_SOURCES) $(collie_la_SOURCES) \
+	$(corgi_la_SOURCES) $(cy8mrln_palmpre_la_SOURCES) \
+	$(dejitter_la_SOURCES) $(dmc_la_SOURCES) $(galax_la_SOURCES) \
+	$(h3600_la_SOURCES) $(input_la_SOURCES) $(linear_la_SOURCES) \
 	$(linear_h2200_la_SOURCES) $(mk712_la_SOURCES) \
 	$(pthres_la_SOURCES) $(tatung_la_SOURCES) \
 	$(touchkit_la_SOURCES) $(ucb1x00_la_SOURCES) \
@@ -525,8 +517,6 @@ pluginexecdir = $(PLUGIN_DIR)
 @ENABLE_DMC_MODULE_TRUE@DMC_MODULE = dmc.la
 @ENABLE_INPUT_MODULE_FALSE@INPUT_MODULE = 
 @ENABLE_INPUT_MODULE_TRUE@INPUT_MODULE = input.la
-@ENABLE_BSD_MODULE_FALSE@BSD_MODULE = 
-@ENABLE_BSD_MODULE_TRUE@BSD_MODULE = bsd.la
 @ENABLE_GALAX_MODULE_FALSE@GALAX_MODULE = 
 @ENABLE_GALAX_MODULE_TRUE@GALAX_MODULE = galax.la
 @ENABLE_TOUCHKIT_MODULE_FALSE@TOUCHKIT_MODULE = 
@@ -550,7 +540,6 @@ pluginexec_LTLIBRARIES = \
 	$(DMC_MODULE) \
 	$(H2200_LINEAR_MODULE) \
 	$(INPUT_MODULE) \
-	$(BSD_MODULE) \
 	$(GALAX_MODULE) \
 	$(TOUCHKIT_MODULE) \
 	$(CY8MRLN_PALMPRE_MODULE)
@@ -588,9 +577,6 @@ dmc_la_LDFLAGS = -module $(LTVSN)
 input_la_SOURCES = input-raw.c
 input_la_LDFLAGS = -module $(LTVSN)
 input_la_LIBADD = $(top_builddir)/src/libts.la
-bsd_la_SOURCES = bsd-raw.c
-bsd_la_LDFLAGS = -module $(LTVSN)
-bsd_la_LIBADD = $(top_builddir)/src/libts.la
 galax_la_SOURCES = galax-raw.c
 galax_la_LDFLAGS = -module $(LTVSN)
 galax_la_LIBADD = $(top_builddir)/src/libts.la
@@ -672,9 +658,6 @@ clean-pluginexecLTLIBRARIES:
 arctic2.la: $(arctic2_la_OBJECTS) $(arctic2_la_DEPENDENCIES) $(EXTRA_arctic2_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(arctic2_la_LINK) $(am_arctic2_la_rpath) $(arctic2_la_OBJECTS) $(arctic2_la_LIBADD) $(LIBS)
 
-bsd.la: $(bsd_la_OBJECTS) $(bsd_la_DEPENDENCIES) $(EXTRA_bsd_la_DEPENDENCIES) 
-	$(AM_V_CCLD)$(bsd_la_LINK) $(am_bsd_la_rpath) $(bsd_la_OBJECTS) $(bsd_la_LIBADD) $(LIBS)
-
 collie.la: $(collie_la_OBJECTS) $(collie_la_DEPENDENCIES) $(EXTRA_collie_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(collie_la_LINK) $(am_collie_la_rpath) $(collie_la_OBJECTS) $(collie_la_LIBADD) $(LIBS)
 
@@ -730,7 +713,6 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/arctic2-raw.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bsd-raw.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/collie-raw.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/corgi-raw.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cy8mrln-palmpre.Plo@am__quote@

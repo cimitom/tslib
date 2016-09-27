@@ -170,10 +170,6 @@
    library which is dlopen()-ed at runtime */
 #undef TSLIB_STATIC_ARCTIC2_MODULE
 
-/* whether bsd should be build as part of libts or as a separate shared
-   library which is dlopen()-ed at runtime */
-#undef TSLIB_STATIC_BSD_MODULE
-
 /* whether collie should be build as part of libts or as a separate shared
    library which is dlopen()-ed at runtime */
 #undef TSLIB_STATIC_COLLIE_MODULE
